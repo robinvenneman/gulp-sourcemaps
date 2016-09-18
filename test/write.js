@@ -65,7 +65,7 @@ test('write: should pass through when file is null', function(t) {
     pipeline
         .on('data', function(data) {
             t.ok(data, 'should pass something through');
-            t.ok(data instanceof File, 'should pass a vinyl file through');
+            t.ok(File.isVinyl(data), 'should pass a vinyl file through');
             t.deepEqual(data, file, 'should not change file');
             t.equal(data.contents, null, 'should not change file content');
             t.end();
@@ -84,7 +84,7 @@ test('write: should pass through when file has no source map', function(t) {
     pipeline
         .on('data', function(data) {
             t.ok(data, 'should pass something through');
-            t.ok(data instanceof File, 'should pass a vinyl file through');
+            t.ok(File.isVinyl(data), 'should pass a vinyl file through');
             t.deepEqual(data, file, 'should not change file');
             t.equal(String(data.contents), sourceContent, 'should not change file content');
             t.end();
@@ -116,7 +116,7 @@ test('write: should write an inline source map', function(t) {
     pipeline
         .on('data', function(data) {
             t.ok(data, 'should pass something through');
-            t.ok(data instanceof File, 'should pass a vinyl file through');
+            t.ok(File.isVinyl(data), 'should pass a vinyl file through');
             t.deepEqual(data, file, 'should not change file');
             t.equal(String(data.contents),
                 sourceContent + '\n//# sourceMappingURL=' + base64JSON(data.sourceMap) + '\n',
@@ -187,17 +187,17 @@ test('write: should write external map files', function(t) {
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/helloworld.js')) {
                         sourceMap = data.sourceMap;
-                        t.ok(data instanceof File, 'should pass a vinyl file through');
+                        t.ok(File.isVinyl(data), 'should pass a vinyl file through');
                         t.deepEqual(data, file, 'should not change file');
                         t.equal(String(data.contents),
                             sourceContent + '\n//# sourceMappingURL=../maps/helloworld.js.map\n',
                             'should add a comment referencing the source map file');
                         t.equal(sourceMap.file, '../dist/helloworld.js');
                     } else {
-                        t.ok(data instanceof File, 'should pass a vinyl file through');
+                        t.ok(File.isVinyl(data), 'should pass a vinyl file through');
                         t.equal(data.path, path.join(__dirname, 'maps/helloworld.js.map'));
                         t.deepEqual(JSON.parse(data.contents), sourceMap, 'should have the file\'s source map as content');
                         t.equal(data.stat.isFile(), true, "should have correct stats");
@@ -232,17 +232,17 @@ test('write: should allow to rename map file', function(t) {
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/helloworld.js')) {
                         sourceMap = data.sourceMap;
-                        t.ok(data instanceof File, 'should pass a vinyl file through');
+                        t.ok(File.isVinyl(data), 'should pass a vinyl file through');
                         t.deepEqual(data, file, 'should not change file');
                         t.equal(String(data.contents),
                             sourceContent + '\n//# sourceMappingURL=../maps/helloworld.map\n',
                             'should add a comment referencing the source map file');
                         t.equal(sourceMap.file, '../dist/helloworld.js');
                     } else {
-                        t.ok(data instanceof File, 'should pass a vinyl file through');
+                        t.ok(File.isVinyl(data), 'should pass a vinyl file through');
                         t.equal(data.path, path.join(__dirname, 'maps/helloworld.map'));
                         t.deepEqual(JSON.parse(data.contents), sourceMap, 'should have the file\'s source map as content');
                     }
@@ -268,7 +268,7 @@ test('write: should create shortest path to map in file comment', function(t) {
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/dir1/dir2/helloworld.js')) {
                         t.equal(String(data.contents),
                             sourceContent + '\n//# sourceMappingURL=../maps/dir1/dir2/helloworld.js.map\n',
@@ -369,7 +369,7 @@ test('write: should automatically determine sourceRoot if destPath is set', func
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/dir1/dir2/helloworld.js')) {
                         t.equal(data.sourceMap.sourceRoot, '../../../assets', 'should set correct sourceRoot');
                         t.equal(data.sourceMap.file, 'helloworld.js');
@@ -398,7 +398,7 @@ test('write: should interpret relative path in sourceRoot as relative to destina
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/dir1/dir2/helloworld.js')) {
                         t.equal(data.sourceMap.sourceRoot, '../../../src', 'should set relative sourceRoot');
                         t.equal(data.sourceMap.file, 'helloworld.js');
@@ -427,7 +427,7 @@ test('write: should interpret relative path in sourceRoot as relative to destina
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/dir1/dir2/helloworld.js')) {
                         t.equal(data.sourceMap.sourceRoot, '../..', 'should set relative sourceRoot');
                         t.equal(data.sourceMap.file, 'helloworld.js');
@@ -456,7 +456,7 @@ test('write: should interpret relative path in sourceRoot as relative to destina
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/dir1/dir2/helloworld.js')) {
                         t.equal(data.sourceMap.sourceRoot, '../../../../src', 'should set relative sourceRoot');
                         t.equal(data.sourceMap.file, '../../../dir1/dir2/helloworld.js');
@@ -485,7 +485,7 @@ test('write: should interpret relative path in sourceRoot as relative to destina
             outFiles.push(data);
             fileCount++;
             if (fileCount == 2) {
-                outFiles.reverse().map(function(data) {
+                outFiles.map(function(data) {
                     if (data.path === path.join(__dirname, 'assets/dir1/dir2/helloworld.js')) {
                         t.equal(data.sourceMap.sourceRoot, '../../../src', 'should set relative sourceRoot');
                         t.equal(data.sourceMap.file, '../../../dist/dir1/dir2/helloworld.js');
@@ -564,8 +564,8 @@ test('write: should output an error message if debug option is set and sourceCon
     pipeline
         .on('data', function(data) {
             hConsole.restore();
-            t.equal(hConsole.history.log[0], 'gulp-sourcemap-write: No source content for "helloworld.js.invalid". Loading from file.', 'should log missing source content');
-            t.ok(hConsole.history.warn[0].indexOf('gulp-sourcemap-write: source file not found: ') === 0, 'should warn about missing file');
+            t.equal(hConsole.history.log[0], 'vinyl-sourcemap-write: No source content for "helloworld.js.invalid". Loading from file.', 'should log missing source content');
+            t.ok(hConsole.history.warn[0].indexOf('vinyl-sourcemap-write: source file not found: ') === 0, 'should warn about missing file');
             t.end();
         })
         .write(file);
